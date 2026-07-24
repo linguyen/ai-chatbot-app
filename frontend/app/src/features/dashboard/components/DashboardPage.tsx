@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../../context/ThemeContext";
-import { FiSun, FiMoon } from "react-icons/fi";
+// theme and icon imports removed (unused)
 // QRGenerator moved to ChatPage
 import QRScanner from "../../../components/QRScanner";
 
@@ -49,18 +48,7 @@ export const DashboardPage: React.FC = () => {
   )
 };
 
-const ThemeButton: React.FC = () => {
-  const { mode, toggleTheme } = useTheme();
-  return (
-    <button
-      onClick={toggleTheme}
-      className="btn btn-ghost btn-square"
-      aria-label="Toggle theme"
-    >
-      {mode === "light" ? <FiMoon size={18} /> : <FiSun size={18} />}
-    </button>
-  );
-};
+// Theme toggle removed from this page (unused)
 
 const ChatAccess: React.FC = () => {
   const [code, setCode] = useState("");

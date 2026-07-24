@@ -34,9 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/requirements.txt
-COPY requirements_extra.txt /app/requirements_extra.txt
 RUN pip install --no-cache-dir --upgrade pip \
-	&& pip install --no-cache-dir -r /app/requirements.txt -r /app/requirements_extra.txt
+	&& pip install --no-cache-dir -r /app/requirements.txt
 RUN playwright install chromium
 
 COPY . /app

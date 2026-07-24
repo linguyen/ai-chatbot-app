@@ -33,7 +33,6 @@ const QRScanner: React.FC<QRScannerProps> = ({ onDetected, onClose }) => {
         // Prefer BarcodeDetector if available
         const Detector = (window as any).BarcodeDetector
         if (Detector) {
-          const formats = Detector.getSupportedFormats ? Detector.getSupportedFormats() : ['qr_code']
           const detector = new Detector({ formats: ['qr_code'] })
 
           const scanWithDetector = async () => {
