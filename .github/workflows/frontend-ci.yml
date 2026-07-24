@@ -37,3 +37,29 @@ jobs:
       - name: Build frontend
         working-directory: frontend/app
         run: npm run build
+
+      - name: Backup current deployment
+        shell: powershell
+        run: |
+          $backupRoot = 'C:\Backups\chatbot.careai.vn'
+          $backup = Join-Path $backupRoot (Get-Date -Format 'yyyyMMddHHmmss')
+          New-Item -ItemType Directory -Force -Path $backupRoot
+          New-Item -ItemType Directory -Force -Path $backup
+          if (Test-Path 'C:\inetpub\wwwroot\chatbot.careai.vn') {
+            robocopy C:\inetpub\wwwroot\chatbot.careai.vn $backup /E
+            if ($LASTEXITCODE -lt 8) { exit 0 } else { exit $LASTEXITCODE }
+          }
+          Write-Host 'No current deployment found. Skipping backup.'
+
+      - name: Deploy
+        shell: powershell
+        run: |
+          robocopy frontend/app/dist C:\inetpub\wwwroot\chatbot.careai.vn /MIR
+          if ($LASTEXITCODE -lt 8) { exit 0 } else { exit $LASTEXITCODE }
+
+      - name: Verify deployment
+        shell: powershell
+        run: |
+          if (!(Test-Path "C:\inetpub\wwwroot\chatbot.careai.vn\index.html")) {
+            throw "Deployment failed: index.html not found."
+          }
