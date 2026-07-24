@@ -1,0 +1,89 @@
+import React, { useMemo, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
+import { FiSun, FiMoon, FiArrowLeft, FiPlusSquare } from 'react-icons/fi'
+import QRGenerator from '../components/QRGenerator'
+
+type Props = {
+  children: React.ReactNode
+}
+
+const ThemeButton: React.FC = () => {
+  const { mode, toggleTheme } = useTheme()
+  return (
+    <button onClick={toggleTheme} className="btn btn-ghost btn-square" aria-label="Toggle theme">
+      {mode === 'light' ? <FiMoon size={18} /> : <FiSun size={18} />}
+    </button>
+  )
+}
+
+const MainLayout: React.FC<Props> = ({ children }) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [qrOpen, setQrOpen] = useState(false)
+
+  const isChat = useMemo(() => location.pathname.startsWith('/chat'), [location.pathname])
+  const chatCode = useMemo(() => {
+    const m = location.pathname.match(/\/chat\/(.+)/)
+    return m && m[1] ? decodeURIComponent(m[1]) : ''
+  }, [location.pathname])
+
+  return (
+    <main className="min-h-screen p-4 md:p-8" style={{ backgroundColor: 'var(--app-bg)' }}>
+      <section className="mx-auto flex h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-box border border-base-300 shadow-xl md:h-[calc(100vh-4rem)]" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <header className="navbar border-b border-base-300 px-4">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+
+            {/* Show on Dashboard and Signin */}
+
+            <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+              {/* Show nav on non-chat pages */}
+              {!isChat ? (
+                <nav>
+                  <ul className="menu menu-horizontal rounded-box bg-base-200 px-2 py-1">
+                    <li>
+                      <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'active' : '')}>Dashboard</NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="/chat" className={({ isActive }) => (isActive ? 'active' : '')}>Chat</NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>Signin</NavLink>
+                    </li>
+                  </ul>
+                </nav>
+              ) : (
+                // Show QR generator and back on chat pages
+                <div className="p-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button className="btn btn-outline btn-sm" onClick={() => setQrOpen(true)}>
+                      <FiPlusSquare size={18} /> QR
+                    </button>
+                    {qrOpen && (
+                      <QRGenerator initialCode={chatCode ?? ''} onClose={() => setQrOpen(false)} />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="btn btn-ghost btn-sm" onClick={() => navigate('/dashboard')}>
+                      <FiArrowLeft size={18} /> Back
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+          <div className="flex-none">
+            <ThemeButton />
+          </div>
+          
+        </header>
+
+        {children}
+
+      </section>
+    </main>
+  )
+}
+
+export default MainLayout

@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+ENV/
+build/
+dist/
+coverage/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/app/node_modules/
+frontend/node_modules/
+dist/
+build/
+
+# Vite
+.vite/
+
+# Env files
+.env
+.env.*
+
+# Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*# Python
+__pycache__/
+*.py[cod]
+.env
+.env.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.vscode/
+backend/then/
+backend/.venv/
+backend/venv/
+frontend/app/.venv/
+
+# Node
+node_modules/
+dist/
+frontend/app/dist/
+frontend/app/.vite/
+
+# General
+.DS_Store
+Thumbs.db

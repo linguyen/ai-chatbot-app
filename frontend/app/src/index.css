@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+	themes: tropical --default;
+}
+
+@plugin "daisyui/theme" {
+	name: "tropical";
+	default: true;
+	prefersdark: false;
+	color-scheme: light;
+
+	--color-base-100: oklch(98% 0.02 170);
+	--color-base-200: oklch(95% 0.03 170);
+	--color-base-300: oklch(91% 0.04 175);
+	--color-base-content: oklch(28% 0.05 225);
+
+	--color-primary: oklch(67% 0.18 196);
+	--color-primary-content: oklch(15% 0.04 210);
+	--color-secondary: oklch(72% 0.17 28);
+	--color-secondary-content: oklch(22% 0.05 20);
+	--color-accent: oklch(82% 0.18 92);
+	--color-accent-content: oklch(26% 0.05 75);
+	--color-neutral: oklch(42% 0.06 230);
+	--color-neutral-content: oklch(94% 0.02 190);
+
+	--color-info: oklch(74% 0.14 230);
+	--color-info-content: oklch(22% 0.05 225);
+	--color-success: oklch(78% 0.16 150);
+	--color-success-content: oklch(24% 0.06 150);
+	--color-warning: oklch(86% 0.18 80);
+	--color-warning-content: oklch(28% 0.06 70);
+	--color-error: oklch(70% 0.19 25);
+	--color-error-content: oklch(20% 0.05 20);
+
+	--radius-selector: 1rem;
+	--radius-field: 0.75rem;
+	--radius-box: 1.25rem;
+
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 1;
+	--noise: 0;
+}
+
