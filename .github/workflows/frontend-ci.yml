@@ -54,7 +54,7 @@ jobs:
       - name: Deploy
         shell: powershell
         run: |
-          robocopy frontend/app/dist C:\inetpub\wwwroot\chatbot.careai.vn /MIR
+          robocopy app/dist C:\inetpub\wwwroot\chatbot.careai.vn /MIR
           if ($LASTEXITCODE -lt 8) { exit 0 } else { exit $LASTEXITCODE }
 
       - name: Verify deployment
