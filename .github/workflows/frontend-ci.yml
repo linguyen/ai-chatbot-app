@@ -8,22 +8,24 @@ on:
 
 jobs:
   build:
+    name: Frontend Build (Node 20)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          npm --prefix frontend/app ci
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/app/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend/app
+        run: npm ci
+
       - name: Build frontend
-        run: |
-          npm --prefix frontend/app run build
-      - name: Run tests (if present)
-        run: |
-          if [ -f frontend/app/package.json ]; then npm --prefix frontend/app test --silent || true; fi
+        working-directory: frontend/app
+        run: npm run build
