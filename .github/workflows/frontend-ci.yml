@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Frontend Build (Node 20)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted # Targets your self-hosted runner
 
     defaults:
       run:
