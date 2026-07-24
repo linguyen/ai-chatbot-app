@@ -35,6 +35,10 @@ jobs:
     name: Backend Unit Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     needs: backend-lint
+    env:
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_KEY: test-supabase-key
+      OPENAI_API_KEY: test-openai-key
     strategy:
       fail-fast: false
       matrix:
@@ -63,6 +67,10 @@ jobs:
     name: Backend Integration Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     needs: backend-unit-tests
+    env:
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_KEY: test-supabase-key
+      OPENAI_API_KEY: test-openai-key
     strategy:
       fail-fast: false
       matrix:
