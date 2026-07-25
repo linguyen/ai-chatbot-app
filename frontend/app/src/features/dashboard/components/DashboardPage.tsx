@@ -96,11 +96,16 @@ const ChatAccess: React.FC = () => {
     navigate(`/chat/${encoded}`);
   };
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onAccess();
+  };
+
   // QR generator moved to ChatPage; no local QR modal here
 
   return (
     <div className="text-lg font-semibold flex-1">
-      <div className="text-lg font-semibold flex-1">
+      <form className="text-lg font-semibold flex-1" onSubmit={onSubmit}>
         <input
           type="text"
           value={code}
@@ -108,10 +113,10 @@ const ChatAccess: React.FC = () => {
           placeholder={t("enterChatCode")}
           className="file-input file-input-bordered w-full max-w-xs py-2 px-3 text-base-content/70"
         />
-      </div>
+      </form>
       <div className="text-sm text-base-content/50 flex flex-col items-center justify-center gap-2">
         <div className="flex gap-2">
-          <button onClick={onAccess} className="btn btn-primary mt-2">
+          <button type="button" onClick={onAccess} className="btn btn-primary mt-2">
             {t("access")}
           </button>
         </div>

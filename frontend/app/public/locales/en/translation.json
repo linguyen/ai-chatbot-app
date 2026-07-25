@@ -13,7 +13,7 @@
   "access": "Access",
   "chatGreeting": "Hi! I am your chatbot. Ask me anything.",
   "quickPromptSummarizeApp": "Summarize my app",
-  "quickPromptReadAuthor": "Learn about the author",
+  "quickPromptReadAuthor": "Learn about the author of this app",
   "quickPromptAppGuidelines": "App usage guidelines",
   "typeYourMessage": "Type your message...",
   "send": "Send",

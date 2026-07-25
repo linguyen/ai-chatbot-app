@@ -1,11 +1,15 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
-import { FiSun, FiMoon, FiArrowLeft, FiPlusSquare } from 'react-icons/fi'
+import { FiSun, FiMoon, FiArrowLeft } from 'react-icons/fi'
 import 'react-i18next'
 import QRGenerator from '../components/QRGenerator'
+import { BsQrCodeScan } from 'react-icons/bs'
+
+const ACTIVE_CHAT_SESSION_KEY = 'activeChatCode'
+const CHAT_MESSAGES_SESSION_PREFIX = 'chatMessages:'
 
 type Props = {
   children: React.ReactNode
@@ -31,6 +35,28 @@ const MainLayout: React.FC<Props> = ({ children }) => {
     const m = location.pathname.match(/\/chat\/(.+)/)
     return m && m[1] ? decodeURIComponent(m[1]) : ''
   }, [location.pathname])
+
+  useEffect(() => {
+    const activeCode = sessionStorage.getItem(ACTIVE_CHAT_SESSION_KEY)
+    if (!activeCode) return
+
+    const isChatWithCode = /^\/chat\/.+/.test(location.pathname)
+    const isBareChat = location.pathname === '/chat'
+    if (isChatWithCode || isBareChat) return
+
+    navigate(`/chat/${encodeURIComponent(activeCode)}`, { replace: true })
+  }, [location.pathname, navigate])
+
+  const handleBackFromChat = () => {
+    const activeCode = sessionStorage.getItem(ACTIVE_CHAT_SESSION_KEY)
+    const targetCode = activeCode || chatCode
+    if (targetCode) {
+      sessionStorage.removeItem(`${CHAT_MESSAGES_SESSION_PREFIX}${targetCode}`)
+    }
+
+    sessionStorage.removeItem(ACTIVE_CHAT_SESSION_KEY)
+    navigate('/dashboard')
+  }
 
   return (
     <main className="min-h-screen p-4 md:p-8" style={{ backgroundColor: 'var(--app-bg)' }}>
@@ -60,17 +86,15 @@ const MainLayout: React.FC<Props> = ({ children }) => {
                 // Show QR generator and back on chat pages
                 <div className="p-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <button className="btn btn-outline btn-sm" onClick={() => setQrOpen(true)}>
-                      <FiPlusSquare size={18} /> {t("qr")}
+                    <button className="btn btn-ghost btn-sm border border-base-300 bg-base-200" onClick={handleBackFromChat}>
+                      <FiArrowLeft size={18} />
+                    </button>
+                    <button className="btn btn-outline btn-sm border border-base-300" onClick={() => setQrOpen(true)}>
+                      <BsQrCodeScan size={18} />
                     </button>
                     {qrOpen && (
                       <QRGenerator initialCode={chatCode ?? ''} onClose={() => setQrOpen(false)} />
                     )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button className="btn btn-ghost btn-sm" onClick={() => navigate('/dashboard')}>
-                      <FiArrowLeft size={18} /> {t("back")}
-                    </button>
                   </div>
                 </div>
               )}

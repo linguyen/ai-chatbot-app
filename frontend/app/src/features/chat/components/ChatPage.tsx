@@ -4,6 +4,9 @@ import { FiUsers, FiUser } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
+const ACTIVE_CHAT_SESSION_KEY = "activeChatCode";
+const CHAT_MESSAGES_SESSION_PREFIX = "chatMessages:";
+
 type Role = "user" | "assistant";
 
 type ChatMessage = {
@@ -17,16 +20,29 @@ type ChatMessage = {
 export const ChatPage: React.FC = () => {
   const { t } = useTranslation();
   const { code } = useParams() || { code: "" };
+  const channel = code || "-1";
   const greeting = t("chatGreeting");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "m1",
-      role: "assistant",
-      channel: code || "-1",
-      text: greeting,
-      time: "09:41",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const raw = sessionStorage.getItem(`${CHAT_MESSAGES_SESSION_PREFIX}${channel}`);
+      if (raw) {
+        const parsed = JSON.parse(raw) as ChatMessage[];
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (error) {
+      console.error("Failed to read chat session messages:", error);
+    }
+
+    return [
+      {
+        id: "m1",
+        role: "assistant",
+        channel,
+        text: greeting,
+        time: "09:41",
+      },
+    ];
+  });
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const listEndRef = useRef<HTMLDivElement | null>(null);
@@ -38,6 +54,20 @@ export const ChatPage: React.FC = () => {
     ],
     [t],
   );
+
+  useEffect(() => {
+    // Sticky chat is enabled only when visiting /chat/:code.
+    if (!code) return;
+    sessionStorage.setItem(ACTIVE_CHAT_SESSION_KEY, code);
+  }, [code]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(`${CHAT_MESSAGES_SESSION_PREFIX}${channel}`, JSON.stringify(messages));
+    } catch (error) {
+      console.error("Failed to persist chat session messages:", error);
+    }
+  }, [channel, messages]);
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -52,7 +82,7 @@ export const ChatPage: React.FC = () => {
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
-      channel: code || "-1",
+      channel,
       text: trimmed,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -70,7 +100,7 @@ export const ChatPage: React.FC = () => {
         const botMessage: ChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          channel: code || "-1",
+          channel,
           text: response.message ?? "", // Use the response from the backend
           time: new Date().toLocaleTimeString([], {
             hour: "2-digit",
