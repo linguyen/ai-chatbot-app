@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 // jsQR will be dynamically imported for fallback scanning
 
 type QRScannerProps = {
@@ -7,6 +8,7 @@ type QRScannerProps = {
 }
 
 const QRScanner: React.FC<QRScannerProps> = ({ onDetected, onClose }) => {
+  const { t } = useTranslation()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [error, setError] = useState<string | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -16,7 +18,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onDetected, onClose }) => {
     let mounted = true
 
     if (!('mediaDevices' in navigator)) {
-      setError('Camera not supported')
+      setError(t('cameraNotSupported'))
       return
     }
 
@@ -98,7 +100,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onDetected, onClose }) => {
           rafRef.current = requestAnimationFrame(scanWithCanvas)
           return
         } catch (err) {
-          setError('BarcodeDetector API not available and jsQR import failed')
+          setError(t('barcodeDetectorUnavailable'))
         }
       } catch (err: any) {
         setError(err?.message || String(err))
@@ -144,15 +146,15 @@ const QRScanner: React.FC<QRScannerProps> = ({ onDetected, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="rounded-lg bg-base-100 p-4 shadow-lg">
         <div className="flex items-center justify-between pb-2">
-          <h3 className="text-lg font-semibold">Scan QR Code</h3>
-          <button className="btn btn-sm btn-ghost" onClick={stop}>Close</button>
+          <h3 className="text-lg font-semibold">{t('scanQrCode')}</h3>
+          <button className="btn btn-sm btn-ghost" onClick={stop}>{t('close')}</button>
         </div>
         {error ? (
           <div className="p-4 text-sm text-red-500">{error}</div>
         ) : (
           <video ref={videoRef} className="w-[320px] h-[240px] bg-black" />
         )}
-        <div className="mt-2 text-sm text-base-content/70">Point the camera at a QR code.</div>
+        <div className="mt-2 text-sm text-base-content/70">{t('pointCameraAtQr')}</div>
       </div>
     </div>
   )

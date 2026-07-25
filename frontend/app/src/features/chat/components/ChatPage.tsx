@@ -1,37 +1,43 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { chatClient } from "../services/chatClient";
 import { FiUsers, FiUser } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 type Role = "user" | "assistant";
 
 type ChatMessage = {
   id: string;
   role: Role;
+  channel: string;
   text: string;
   time: string;
 };
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: "m1",
-    role: "assistant",
-    text: "Hi! I am your tropical chatbot. Ask me anything.",
-    time: "09:41",
-  },
-];
-
-const quickPrompts = [
-  "Summarize my notes",
-  "Draft a reply email",
-  "Explain this code",
-  "Plan my day",
-];
-
 export const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const { t } = useTranslation();
+  const { code } = useParams() || { code: "" };
+  const greeting = t("chatGreeting");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "m1",
+      role: "assistant",
+      channel: code || "-1",
+      text: greeting,
+      time: "09:41",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const listEndRef = useRef<HTMLDivElement | null>(null);
+  const quickPrompts = useMemo(
+    () => [
+      t("quickPromptSummarizeApp"),
+      t("quickPromptReadAuthor"),
+      t("quickPromptAppGuidelines")
+    ],
+    [t],
+  );
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,6 +52,7 @@ export const ChatPage: React.FC = () => {
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
+      channel: code || "-1",
       text: trimmed,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -63,6 +70,7 @@ export const ChatPage: React.FC = () => {
         const botMessage: ChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
+          channel: code || "-1",
           text: response.message ?? "", // Use the response from the backend
           time: new Date().toLocaleTimeString([], {
             hour: "2-digit",
@@ -101,7 +109,7 @@ export const ChatPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <div className="chat-bubble">{msg.text}</div>
+                <div className="chat-bubble">{msg.id === "m1" && msg.role === "assistant" ? greeting : msg.text}</div>
                 <div className="chat-footer mt-1 text-xs opacity-60">
                   {msg.time}
                 </div>
@@ -146,7 +154,7 @@ export const ChatPage: React.FC = () => {
             <input
               type="text"
               className="input input-bordered w-full"
-              placeholder="Type your message..."
+              placeholder={t("typeYourMessage")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
             />
@@ -155,7 +163,7 @@ export const ChatPage: React.FC = () => {
               className="btn btn-primary"
               disabled={!canSend}
             >
-              Send
+              {t("send")}
             </button>
           </form>
         </div>

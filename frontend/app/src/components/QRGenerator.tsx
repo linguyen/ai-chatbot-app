@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
   initialCode?: string
@@ -32,6 +33,7 @@ const detectLocalIPs = async (): Promise<string[]> => {
 }
 
 const QRGenerator: React.FC<Props> = ({ initialCode = '', onClose }) => {
+  const { t } = useTranslation()
   const [code, setCode] = useState(initialCode)
   const [host, setHost] = useState(window.location.hostname)
   const [port, setPort] = useState(window.location.port)
@@ -64,7 +66,7 @@ const QRGenerator: React.FC<Props> = ({ initialCode = '', onClose }) => {
     try {
       await navigator.clipboard.writeText(text)
     } catch (err) {
-      setError('Copy failed')
+      setError(t('copyFailed'))
     }
   }
 
@@ -72,15 +74,15 @@ const QRGenerator: React.FC<Props> = ({ initialCode = '', onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="rounded-lg bg-base-100 p-4 shadow-lg w-[360px]">
         <div className="flex items-center justify-between pb-2">
-          <h3 className="text-lg font-semibold">Generate QR for Chat</h3>
-          <button className="btn btn-sm btn-ghost" onClick={onClose}>Close</button>
+          <h3 className="text-lg font-semibold">{t('generateQrForChat')}</h3>
+          <button className="btn btn-sm btn-ghost" onClick={onClose}>{t('close')}</button>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm">Chat code</label>
+          <label className="text-sm">{t('chatCode')}</label>
           <input value={code} onChange={(e) => setCode(e.target.value)} className="input input-bordered" placeholder="abc123" />
 
-          <label className="text-sm">Host (replace with your LAN IP for phone scanning)</label>
+          <label className="text-sm">{t('hostForPhoneScan')}</label>
           <div className="flex gap-2">
             <input value={host} onChange={(e) => setHost(e.target.value)} className="input input-bordered flex-1" />
             <input value={port} onChange={(e) => setPort(e.target.value)} className="input input-bordered w-20" placeholder="5173" />
@@ -90,16 +92,16 @@ const QRGenerator: React.FC<Props> = ({ initialCode = '', onClose }) => {
             <button className="btn btn-sm" onClick={async () => {
               const ips = await detectLocalIPs()
               if (ips.length > 0) setHost(ips[0])
-              else setError('Could not detect local IP')
-            }}>Detect LAN IP</button>
-            <button className="btn btn-sm" onClick={() => copy(fullUrl)}>Copy URL</button>
-            <button className="btn btn-sm" onClick={() => copy(code)}>Copy Code</button>
+              else setError(t('couldNotDetectLocalIp'))
+            }}>{t('detectLanIp')}</button>
+            <button className="btn btn-sm" onClick={() => copy(fullUrl)}>{t('copyUrl')}</button>
+            <button className="btn btn-sm" onClick={() => copy(code)}>{t('copyCode')}</button>
           </div>
 
           {error && <div className="text-sm text-red-500">{error}</div>}
 
           <div className="flex items-center justify-center py-2">
-            {qrDataUrl ? <img src={qrDataUrl} alt="QR code" className="w-48 h-48" /> : <div className="text-sm text-muted">Enter a code to generate QR</div>}
+            {qrDataUrl ? <img src={qrDataUrl} alt={t('qrCodeAlt')} className="w-48 h-48" /> : <div className="text-sm text-muted">{t('enterCodeToGenerateQr')}</div>}
           </div>
         </div>
       </div>

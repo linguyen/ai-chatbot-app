@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type SigninResponse = {
     access_token: string;
@@ -8,6 +9,7 @@ type SigninResponse = {
 };
 
 export const AuthPage: React.FC = () => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ export const AuthPage: React.FC = () => {
         e.preventDefault();
         setError(null);
         if (!email || !password) {
-            setError('Email and password are required.');
+            setError(t('emailPasswordRequired'));
             return;
         }
         setLoading(true);
@@ -38,7 +40,7 @@ export const AuthPage: React.FC = () => {
             // Optionally redirect to dashboard
             window.location.href = '/dashboard';
         } catch (err: any) {
-            setError(err?.message ?? 'Signin failed');
+            setError(err?.message ?? t('signinFailed'));
         } finally {
             setLoading(false);
         }
@@ -47,11 +49,11 @@ export const AuthPage: React.FC = () => {
     return (
         <main className="min-h-screen bg-base-200 flex items-center justify-center p-4">
             <section className="w-full max-w-md rounded-box border border-base-300 bg-base-100 p-6 shadow-md">
-                <h2 className="text-2xl font-bold mb-4">Sign in</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('signIn')}</h2>
                 <form onSubmit={submit} className="space-y-4">
                     <div>
                         <label className="label">
-                            <span className="label-text">Email</span>
+                            <span className="label-text">{t('email')}</span>
                         </label>
                         <input
                             type="email"
@@ -65,7 +67,7 @@ export const AuthPage: React.FC = () => {
 
                     <div>
                         <label className="label">
-                            <span className="label-text">Password</span>
+                            <span className="label-text">{t('password')}</span>
                         </label>
                         <input
                             type="password"
@@ -81,9 +83,9 @@ export const AuthPage: React.FC = () => {
 
                     <div className="flex items-center justify-between">
                         <button type="submit" className={`btn btn-primary ${loading ? 'loading' : ''}`} disabled={loading}>
-                            {loading ? 'Signing in...' : 'Sign in'}
+                            {loading ? t('signingIn') : t('signIn')}
                         </button>
-                        <a href="/auth/register" className="link">Create account</a>
+                        <a href="/auth/register" className="link">{t('createAccount')}</a>
                     </div>
                 </form>
             </section>

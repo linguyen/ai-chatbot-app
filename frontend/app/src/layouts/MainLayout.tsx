@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { FiSun, FiMoon, FiArrowLeft, FiPlusSquare } from 'react-icons/fi'
+import 'react-i18next'
 import QRGenerator from '../components/QRGenerator'
 
 type Props = {
@@ -18,6 +21,7 @@ const ThemeButton: React.FC = () => {
 }
 
 const MainLayout: React.FC<Props> = ({ children }) => {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [qrOpen, setQrOpen] = useState(false)
@@ -42,13 +46,13 @@ const MainLayout: React.FC<Props> = ({ children }) => {
                 <nav>
                   <ul className="menu menu-horizontal rounded-box bg-base-200 px-2 py-1">
                     <li>
-                      <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'active' : '')}>Dashboard</NavLink>
+                      <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'active' : '')}>{t("dashboard")}</NavLink>
                     </li>
                     <li>
-                      <NavLink to="/chat" className={({ isActive }) => (isActive ? 'active' : '')}>Chat</NavLink>
+                      <NavLink to="/chat" className={({ isActive }) => (isActive ? 'active' : '')}>{t("chat")}</NavLink>
                     </li>
                     <li>
-                      <NavLink to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>Signin</NavLink>
+                      <NavLink to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>{t("signIn")}</NavLink>
                     </li>
                   </ul>
                 </nav>
@@ -57,7 +61,7 @@ const MainLayout: React.FC<Props> = ({ children }) => {
                 <div className="p-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <button className="btn btn-outline btn-sm" onClick={() => setQrOpen(true)}>
-                      <FiPlusSquare size={18} /> QR
+                      <FiPlusSquare size={18} /> {t("qr")}
                     </button>
                     {qrOpen && (
                       <QRGenerator initialCode={chatCode ?? ''} onClose={() => setQrOpen(false)} />
@@ -65,13 +69,16 @@ const MainLayout: React.FC<Props> = ({ children }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="btn btn-ghost btn-sm" onClick={() => navigate('/dashboard')}>
-                      <FiArrowLeft size={18} /> Back
+                      <FiArrowLeft size={18} /> {t("back")}
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
+          </div>
+          <div className="flex-none">
+            <LanguageSwitcher />
           </div>
           <div className="flex-none">
             <ThemeButton />

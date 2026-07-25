@@ -15,16 +15,7 @@ const api = axios.create({
 export const chatClient = {
     sendMessage: async (chatRequest: ChatRequest): Promise<ChatResponse> => {
         try {
-            const message = "SYSTEM:\n " +
-            "You are a helpful assistant\n. Noted: You can answer politely and naturally for greeting questions.\n " +
-            "Only answer using the supplied context. Maybe add additional natural language in responses.\n " +
-            "If the answer is missing say 'I don't know'.\n " +
-            "CONTEXT:\n " +
-            "TDP Binh An 1 and TDP Binh An 3 => TDP Binh An\n. " +
-            "TDP Tan Thien 1, TDP Tan Thien 2 and TDP Tan Thien 3 => TDP Tan Thien.\n " +
-            "TDP Tan An 1, TDP Tan An 2 and TDP Tan An 3 => TDP Tan An.\n " +
-            "QUESTION: " + (chatRequest.message || '');
-            const prompt = message; // You can modify this to include more context or formatting as needed
+            const prompt = chatRequest.message; // You can modify this to include more context or formatting as needed
             const response = await api.post('/chat', { message: prompt });
             return response.data; // Assuming the backend returns the bot's response in the data field
         }
