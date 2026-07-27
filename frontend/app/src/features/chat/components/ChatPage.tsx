@@ -95,7 +95,7 @@ export const ChatPage: React.FC = () => {
     setIsTyping(true);
 
     chatClient
-      .sendMessage({ message: trimmed }) // Send the message to the backend
+      .sendMessage({ message: trimmed }, code) // Send the message to the backend
       .then((response) => {
         const botMessage: ChatMessage = {
           id: crypto.randomUUID(),
