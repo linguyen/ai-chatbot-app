@@ -66,7 +66,12 @@ def create_app() -> FastAPI:
         print("🤖 Booting application environment clusters...")
         # Initialize connection singleton pools safely
         await init_supabase()
+        scheduler_enabled = is_scheduler_enabled()
+        if scheduler_enabled:
+            scheduler.start()
         yield
+        if scheduler_enabled:
+            await scheduler.stop()
         print("🔌 Gracefully closing database pool nodes.")
 
     app = FastAPI(
@@ -121,15 +126,6 @@ def create_app() -> FastAPI:
         if not metrics_enabled:
             return Response(status_code=404)
         return Response(content=generate_latest().decode("utf-8"), media_type=CONTENT_TYPE_LATEST)
-
-    @app.on_event("startup")
-    async def start_notification_scheduler() -> None:
-        if is_scheduler_enabled():
-            scheduler.start()
-
-    @app.on_event("shutdown")
-    async def stop_notification_scheduler() -> None:
-        await scheduler.stop()
 
     cors_allow_origins = os.getenv(
         "CORS_ALLOW_ORIGINS",

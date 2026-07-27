@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path
 from pydantic import BaseModel
 from openai import OpenAI
+from typing import Annotated
 import os
+
+from src.core.sanitization import sanitize_channel_id_domain
 
 # Router for chat-related endpoints
 router = APIRouter(prefix="/api/chat", tags=["chat"])
@@ -14,8 +17,56 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     message: str | None
 
-@router.post("/", response_model=ChatResponse)
-async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
+def _build_prompt(payload_message: str, channel_id: str | None = None) -> str:
+    normalized_channel_id = channel_id.lower() if channel_id else None
+    channel_context = f"\n Channel ID: {normalized_channel_id}\n" if normalized_channel_id else ""
+    if normalized_channel_id == "umbraco.vn":
+        channel_context = (
+            "TDP Binh An 1 and TDP Binh An 3 => TDP Binh An\n"
+            "TDP Tan Thien 1, TDP Tan Thien 2 and TDP Tan Thien 3 => TDP Tan Thien.\n"
+            "TDP Tan An 1, TDP Tan An 2 and TDP Tan An 3 => TDP Tan An.\n"
+        )
+    else:
+        channel_context = (
+            "Umbraco Vietnam provides the best services at affordable prices.\n"
+            "They have over 10 years of experience working with Umbraco for global clients across Australia, the US, and Europe.\n"
+            "They typically charge $20/hour for long-term projects and $30/hour for short-term projects.\n"
+            "They work remotely or on-site in Vietnam. They can also visit clients if necessary.\n"
+            "New Umbraco versions are released every six months. They stay up to date with the latest releases and have experience working with Umbraco 18.\n"
+            "They can migrate websites from older Umbraco versions to the latest version. They can also migrate websites from other CMS platforms to Umbraco.\n"
+            "They specialise in SEO and performance optimisation. They can also help clients improve security and compliance.\n"
+            "They do not host your website or sensitive data on their own UAT or staging environments during development. Clients are required to provide their own hosting and database for the project.\n"
+            "They can deploy and host Umbraco on cloud platforms such as AWS, Azure, or Umbraco Cloud.\n"
+            "They focus on developing AI assistants for Umbraco projects. They can help clients integrate AI-powered chatbots, RAG solutions, AI features, and more.\n"
+            "They can build custom Umbraco plugins based on clients' requirements. They can also develop bespoke features for Umbraco.\n"
+        )
+    return (
+        "SYSTEM:\n "
+        "Phase 1: If it is a greeting question, you are allowed to be a helpful assistant\n. Use the [CONTEXT 1].\n "
+        "[CONTEXT 1]:"
+        "I am a chatbot and answer any things you can ask.\n "
+        "I answer based on your import knowledge.\n "
+        "Answer questions as a comedian.\n "
+        "Other information about the chatbot application\n "
+        "Author: Minh Tuan (Li) Nguyen \n"
+        "Degree: Msc in AI at Western University\n"
+        "Role: AI Engineer\n"
+        "Experience: 5 years in AI fields\n"
+        "Hometown: Lagi, Lam Dong, Vietnam\n"
+        "He is an owner of this chatbot application. And a founder of CareAI Vietnam in AI fields.\n"
+        "Phase 2: If it is not a greeting question, you are a helpful assistant\n. "
+        "Noted: You can answer politely and naturally for greeting questions.\n "
+        "Only answer using the supplied context. Maybe add additional natural language in responses.\n "
+        "Answer shortly and concisely to reduce cost.\n "
+        "If the answer is missing say 'I don't know'.\n Use the [CONTEXT 2]"
+        "[CONTEXT 2]:\n "
+        + channel_context
+        + "QUESTION: \n "
+        + payload_message
+    )
+
+
+def _generate_chat_response(payload: ChatRequest, channel_id: str | None = None) -> ChatResponse:
     try:
         # Read API key from environment and instantiate OpenAI client per-request
         api_key = os.getenv("OPENAI_API_KEY")
@@ -27,28 +78,7 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
         except TypeError as te:
             raise HTTPException(status_code=502, detail=f"OpenAI client initialization failed: {te}")
 
-        message = ("SYSTEM:\n "
-            "Phase 1: If it is a hello question, you are allowed to be a helpful assistant\n. Use the [CONTEXT 1].\n "
-            "[CONTEXT 1]:"
-            "I am a chatbot and answer any things you can ask.\n "
-            "I answer based on your import knowledge.\n "
-            "Answer questions as a comedian.\n "
-            "Other information about the chatbot application\n "
-            "Author: Minh Tuan (Li) Nguyen \n"
-            "Degree: Msc in AI at Western University\n"
-            "Role: AI Engineer\n"
-            "Experience: 5 years in AI fields\n"
-            "Hometown: Lagi, Lam Dong, Vietnam\n"
-            "He is an owner of this chatbot application. And a founder of CareAI Vietnam in AI fields.\n"
-            "Phase 2: If it is not a greeting question, you are a helpful assistant\n. "
-            "Noted: You can answer politely and naturally for greeting questions.\n "
-            "Only answer using the supplied context. Maybe add additional natural language in responses.\n "
-            "If the answer is missing say 'I don't know'.\n "
-            "CONTEXT:\n "
-            "TDP Binh An 1 and TDP Binh An 3 => TDP Binh An\n. "
-            "TDP Tan Thien 1, TDP Tan Thien 2 and TDP Tan Thien 3 => TDP Tan Thien.\n "
-            "TDP Tan An 1, TDP Tan An 2 and TDP Tan An 3 => TDP Tan An.\n "
-            "QUESTION: \n " + payload.message)
+        message = _build_prompt(payload.message, channel_id)
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -60,3 +90,27 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
     text = response.choices[0].message.content
 
     return ChatResponse(message=text)
+
+
+@router.post("/", response_model=ChatResponse)
+async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
+    return _generate_chat_response(payload)
+
+
+@router.post("/{channel_id}", response_model=ChatResponse)
+async def chat_endpoint_by_channel(
+    channel_id: Annotated[
+        str,
+        Path(
+            min_length=3,
+            max_length=253,
+            description="Channel ID in domain format, e.g. umbraco.vn",
+        ),
+    ],
+    payload: ChatRequest,
+) -> ChatResponse:
+    try:
+        sanitized_channel_id = sanitize_channel_id_domain(channel_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return _generate_chat_response(payload, sanitized_channel_id)

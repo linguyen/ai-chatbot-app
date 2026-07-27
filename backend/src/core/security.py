@@ -9,7 +9,7 @@ from uuid import uuid4
 import jwt
 from jwt import InvalidTokenError
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-in-production-min-32-byte-secret")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
 REFRESH_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_REFRESH_EXPIRE_MINUTES", "10080"))

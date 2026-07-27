@@ -48,8 +48,10 @@ Create environment variables before running the app.
 Backend:
 
 - `OPENAI_API_KEY`: Required for OpenAI requests
-- `ALLOWED_ORIGINS`: Optional CORS origins list separated by commas
-	- Default: `http://localhost:3000,http://localhost:5175`
+- `CORS_ALLOW_ORIGINS`: Optional CORS origins list separated by commas
+	- Example: `http://localhost:5175`
+- `CSRF_TRUSTED_ORIGINS`: Optional trusted origins for CSRF checks
+	- Example: `http://localhost:5175`
 
 Frontend:
 
