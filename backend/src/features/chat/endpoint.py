@@ -18,9 +18,8 @@ class ChatResponse(BaseModel):
     message: str | None
 
 def _build_prompt(payload_message: str, channel_id: str | None = None) -> str:
-    normalized_channel_id = channel_id.lower() if channel_id else None
-    channel_context = f"\n Channel ID: {normalized_channel_id}\n" if normalized_channel_id else ""
-    if normalized_channel_id == "umbraco.vn":
+    channel_context = ""
+    if channel_id != "umbraco.vn":
         channel_context = (
             "TDP Binh An 1 and TDP Binh An 3 => TDP Binh An\n"
             "TDP Tan Thien 1, TDP Tan Thien 2 and TDP Tan Thien 3 => TDP Tan Thien.\n"
